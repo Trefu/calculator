@@ -19,7 +19,8 @@ export const Buttons = (props) => {
             //Resultado
             if (value === '=') {
                 try {
-                    const filtered = input.join('').match(/(\*|\+|\/|-)?(\.|\-)?\d+/g).join('')
+                    const filtered = input.join('').match(/(\*|\+|\/|-)?(\.|-)?\d+/g).join('');
+                    // eslint-disable-next-line
                     const result = eval(filtered);
                     return setInput([result])
                 } catch (error) {
