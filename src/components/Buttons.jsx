@@ -1,45 +1,64 @@
 import { useState } from 'react';
-import { restart } from '../utils'
 
 export const Buttons = (props) => {
     const { input, setInput } = props;
     const [hasDecimal, setHasDecimal] = useState(false)
-    const actions = [restart]
 
     const handleClick = (e) => {
-        console.log(hasDecimal)
+
         const value = e.target.value;
         const lastInput = input[input.length - 1];
         const firstNumberIsZero = input[0] === '0' && input.length <= 1 ? true : false;
 
         if (isNaN(value)) {
-            //RESETEO
-            if (value === 'restart') return setInput(['0']);
-
-            //NO DOBLE PUNTO
-            if (value === '.' && lastInput === '.') return console.log("YA TENIA PUNTITO XD");
-
-            //Si el primero numero es cero le agrega el operador
+            //Reseta el input
+            if (value === 'restart') {
+                setHasDecimal(false)
+                return setInput(['0']);
+            }
+            //Resultado
+            if (value === '=') {
+                try {
+                    const filtered = input.join('').match(/(\*|\+|\/|-)?(\.|\-)?\d+/g).join('')
+                    const result = eval(filtered);
+                    return setInput([result])
+                } catch (error) {
+                    console.log(error)
+                    return setInput(['ERROR'])
+                }
+            }
+            //En caso de ser el primer input reemplaza el cero por el valor obtenido
             if (firstNumberIsZero) return setInput([...input, value]);
 
-            if (value === '.' && hasDecimal) return console.log("ya tenia punto este numero")
+            if (value === '-' && isNaN(lastInput)) {
 
-            //Agrega decimal 
-            if (value === '.' && !isNaN(lastInput)) {
-                setHasDecimal(true)
-                console.log("cambio a", hasDecimal)
                 return setInput([...input, value])
             }
 
-            //Reemplaza el ultimo simbolo aritmetico
-            if (isNaN(lastInput)) {
-                const auxInput = [...input];
-                auxInput.pop();
-                return setInput([...auxInput, value])
+            //No permite el doble punto o el punto seguido de un simbolo aritmetico
+            if (value === '.' && isNaN(lastInput)) return console.log("no puede haber punto seguido de simbolo o punto");
+
+            //evita simbolos aritmeticos post puntos
+            if (lastInput === '.') return
+
+            //Si el numero ya contiene decimal retorna
+            if (value === '.' && hasDecimal) return console.log("ya tenia punto este numero");
+
+            //Agrega decimal si el ultimo input fue un numero
+            if (value === '.' && !isNaN(lastInput)) {
+                setHasDecimal(true)
+                return setInput([...input, value])
             }
+
+            //Reemplaza ultimo operador aritmeticp
+            /*            if (isNaN(lastInput) && lastInput !== '.') {
+                           const auxInput = [...input];
+                           auxInput.pop()
+                           return setInput([...auxInput, value])
+                       } */
+
             setHasDecimal(false)
             return setInput([...input, value])
-
 
         }
 
