@@ -3,67 +3,78 @@ import { useState } from 'react';
 export const Buttons = (props) => {
     const { input, setInput } = props;
     const [hasDecimal, setHasDecimal] = useState(false)
-
+    const [arit, setArit] = useState(false)
     const handleClick = (e) => {
-
         const value = e.target.value;
         const lastInput = input[input.length - 1];
-        const firstNumberIsZero = input[0] === '0' && input.length <= 1 ? true : false;
-
-        if (isNaN(value)) {
-            //Reseta el input
-            if (value === 'restart') {
-                setHasDecimal(false)
-                return setInput(['0']);
+        const firstNumberAndZero = input[0] === '0' && input.length <= 1 ? true : false;
+        const equal = () => {
+            try {
+                //SI SE LO SACAN SE CAE A PEDACITO
+                const filtered = input.join('').match(/(\*|\+|\/|-)?(\.|-)?\d+/g).join('');
+                // eslint-disable-next-line
+                const result = eval(filtered);
+                return setInput([result])
+            } catch (error) {
+                console.log(error)
+                return setInput(['ERROR'])
             }
-            //Resultado
-            if (value === '=') {
-                try {
-                    const filtered = input.join('').match(/(\*|\+|\/|-)?(\.|-)?\d+/g).join('');
-                    // eslint-disable-next-line
-                    const result = eval(filtered);
-                    return setInput([result])
-                } catch (error) {
-                    console.log(error)
-                    return setInput(['ERROR'])
-                }
-            }
-            //En caso de ser el primer input reemplaza el cero por el valor obtenido
-            if (firstNumberIsZero) return setInput([...input, value]);
-
-            if (value === '-' && isNaN(lastInput)) {
-
-                return setInput([...input, value])
-            }
-
-            //No permite el doble punto o el punto seguido de un simbolo aritmetico
-            if (value === '.' && isNaN(lastInput)) return console.log("no puede haber punto seguido de simbolo o punto");
-
+        }
+        const dot = () => {
             //evita simbolos aritmeticos post puntos
             if (lastInput === '.') return
 
             //Si el numero ya contiene decimal retorna
-            if (value === '.' && hasDecimal) return console.log("ya tenia punto este numero");
-
-            //Agrega decimal si el ultimo input fue un numero
-            if (value === '.' && !isNaN(lastInput)) {
-                setHasDecimal(true)
-                return setInput([...input, value])
+            if (hasDecimal) {
+                return console.log("Decimal activado", lastInput);
             }
 
-            //Reemplaza ultimo operador aritmeticp
-            /*            if (isNaN(lastInput) && lastInput !== '.') {
-                           const auxInput = [...input];
-                           auxInput.pop()
-                           return setInput([...auxInput, value])
-                       } */
-
+            //Agrega decimal si el ultimo input fue un numero
+            if (!isNaN(lastInput)) {
+                setHasDecimal(true);
+                console.log("ASd")
+                return setInput([...input, value])
+            }
+        }
+        const symbol = () => {
+            if (arit && lastInput === value) return;
+            if (lastInput === '*' || lastInput === '/' || lastInput === '+') {
+                let auxInput = [...input];
+                auxInput[auxInput.length - 1] = value
+                setHasDecimal(false)
+                return setInput([...auxInput]);
+            }
             setHasDecimal(false)
+            setArit(true)
             return setInput([...input, value])
-
+        }
+        const restart = () => {
+            setHasDecimal(false)
+            setArit(false)
+            return setInput(['0']);
+        }
+        const minus = () => {
+            if (lastInput === '-') return
+            setHasDecimal(false);
+            setInput([...input, value])
+        }
+        const OPERATORS = {
+            '*': symbol,
+            '=': equal,
+            '/': symbol,
+            '+': symbol,
+            '.': dot,
+            '-': minus,
+            'restart': restart,
+            'other': () => null
         }
 
-        if (firstNumberIsZero) return setInput([value])
+        if (isNaN(value)) {
+            let operatorsKey = value;
+            return OPERATORS[operatorsKey]();
+        }
+        if (firstNumberAndZero) return setInput([value])
+        setArit(false)
         return setInput([...input, value])
     }
     return (

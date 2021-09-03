@@ -5,7 +5,7 @@ function App() {
   const [input, setInput] = useState(['0'])
   return (
     <div className="bg-gray-800 h-screen flex justify-center items-center">
-      <div style={{ width: "320px" }} className="bg-blue-100 container mx-auto p-2 rounded-lg border-2 border-blue-300">
+      <div className="max-w-xs  bg-blue-100 container mx-auto p-2 rounded-lg border-2 border-blue-300">
         <Display input={input} />
 
         <Buttons input={input} setInput={setInput} />
