@@ -1,9 +1,10 @@
 import { useState } from "react";
 import Display from "./components/Display";
 import Buttons from "./components/Buttons";
+import { initialState } from "./calc";
 
 function App() {
-  const [input, setInput] = useState(["0"]);
+  const [input, setInput] = useState(initialState);
 
   return (
     <div className="min-h-screen w-full bg-gradient-to-b from-ink-100 to-ink-200 flex items-center justify-center px-4">
