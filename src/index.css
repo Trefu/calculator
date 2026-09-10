@@ -19,28 +19,28 @@
 
 @layer components {
   .key {
-    @apply h-16 rounded-xl text-lg font-medium select-none
+    @apply h-20 rounded-2xl text-2xl font-medium select-none
            bg-ink-100 text-ink-800
            hover:bg-ink-200 active:bg-ink-300
            transition-colors duration-150 ease-out
            focus:outline-none;
   }
   .key-op {
-    @apply h-16 rounded-xl text-lg font-medium select-none
+    @apply h-20 rounded-2xl text-2xl font-medium select-none
            bg-ink-200 text-ink-900
            hover:bg-ink-300 active:bg-ink-400
            transition-colors duration-150 ease-out
            focus:outline-none;
   }
   .key-fn {
-    @apply h-16 rounded-xl text-lg font-medium select-none
+    @apply h-20 rounded-2xl text-2xl font-medium select-none
            bg-ink-300 text-ink-900
            hover:bg-ink-400 active:bg-ink-500
            transition-colors duration-150 ease-out
            focus:outline-none;
   }
   .key-eq {
-    @apply h-16 rounded-xl text-lg font-semibold select-none
+    @apply h-20 rounded-2xl text-2xl font-semibold select-none
            bg-ink-900 text-white
            hover:bg-ink-800 active:bg-ink-700
            transition-colors duration-150 ease-out

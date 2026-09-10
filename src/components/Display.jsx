@@ -12,14 +12,15 @@ export const Display = ({ input }) => {
   const text = isResult ? formatNumber(input[0]) : input.join("");
 
   return (
-    <div className="bg-ink-50 rounded-2xl shadow-inset border border-ink-200/80 px-5 py-4 mb-4">
-      <div className="text-[10px] uppercase tracking-[0.2em] text-ink-400 mb-1 h-3">
+    <div className="bg-ink-50 rounded-2xl shadow-inset border border-ink-200/80 px-6 py-5 mb-5 h-[7.5rem] flex flex-col justify-end overflow-hidden">
+      <div className="text-[10px] uppercase tracking-[0.2em] text-ink-400 mb-1 h-4 leading-none">
         {isResult ? "Result" : ""}
       </div>
       <div
         id="display"
         className="font-mono text-right text-ink-900 tabular-nums tracking-tight
-                   text-3xl sm:text-4xl leading-tight truncate min-h-[2.25rem]"
+                   text-5xl sm:text-6xl leading-none
+                   h-16 overflow-hidden whitespace-nowrap text-ellipsis"
       >
         {text}
       </div>

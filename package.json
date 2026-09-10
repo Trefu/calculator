@@ -13,11 +13,9 @@
     "web-vitals": "^1.1.2"
   },
   "scripts": {
-    "start": "craco start",
-
-    "build": "craco build",
-
-    "test": "craco test",
+    "start": "cross-env NODE_OPTIONS=--openssl-legacy-provider DISABLE_ESLINT_PLUGIN=true craco start",
+    "build": "cross-env NODE_OPTIONS=--openssl-legacy-provider DISABLE_ESLINT_PLUGIN=true craco build",
+    "test": "cross-env NODE_OPTIONS=--openssl-legacy-provider craco test",
     "eject": "react-scripts eject"
   },
   "eslintConfig": {
@@ -40,6 +38,7 @@
   },
   "devDependencies": {
     "autoprefixer": "^9.8.6",
+    "cross-env": "^10.1.0",
     "postcss": "^7.0.36",
     "tailwindcss": "npm:@tailwindcss/postcss7-compat@^2.2.7"
   }

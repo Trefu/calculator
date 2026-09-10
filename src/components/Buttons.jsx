@@ -43,7 +43,7 @@ export const Buttons = ({ input, setInput }) => {
   };
 
   return (
-    <div className="grid grid-cols-4 gap-2">
+    <div className="grid grid-cols-4 gap-3">
       <button id="clear" onClick={handleClick} value="restart" className="key-fn col-span-2">
         AC
       </button>
