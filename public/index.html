@@ -12,6 +12,12 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <link rel="manifest" href="%PUBLIC_URL%/manifest.json" />
+  <script>
+    try {
+      var projectName = 'calculator';
+      localStorage.setItem('fCC_' + projectName + '_hide', 'true');
+    } catch (e) {}
+  </script>
 
   <title>Calculator</title>
 </head>
@@ -19,10 +25,6 @@
 <body>
   <noscript>You need to enable JavaScript to run this app.</noscript>
   <div id="root"></div>
-  <script>
-    var projectName = 'calculator';
-    localStorage.setItem('fCC_' + projectName + '_hide', 'true');
-  </script>
   <script src="https://cdn.freecodecamp.org/testable-projects-fcc/v1/bundle.js"></script>
 </body>
 
