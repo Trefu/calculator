@@ -7,7 +7,7 @@ function App() {
 
   return (
     <div className="min-h-screen w-full bg-gradient-to-b from-ink-100 to-ink-200 flex items-center justify-center px-4">
-      <div className="w-[340px] sm:w-[380px] bg-white rounded-[28px] shadow-card border border-ink-200/70 p-6 sm:p-7">
+      <div className="w-calc-sm sm:w-calc-lg bg-white rounded-[28px] shadow-card border border-ink-200/70 p-6 sm:p-7">
         <div className="flex items-center justify-between mb-4 px-1">
           <span className="text-[11px] font-medium tracking-[0.18em] uppercase text-ink-400">
             Calculator

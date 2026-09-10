@@ -26,6 +26,10 @@ module.exports = {
         card: '0 1px 2px rgba(0,0,0,0.04), 0 10px 30px -10px rgba(0,0,0,0.15), 0 20px 60px -20px rgba(0,0,0,0.25)',
         inset: 'inset 0 1px 2px rgba(0,0,0,0.06), inset 0 -1px 0 rgba(255,255,255,0.6)',
       },
+      width: {
+        'calc-sm': '360px',
+        'calc-lg': '480px',
+      },
     },
   },
   variants: {
