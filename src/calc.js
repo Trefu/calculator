@@ -6,7 +6,9 @@ export const initialState = {
   justComputed: false,
   lastOperand: null,
   lastOp: null,
+  lastOperandSource: null,
   error: false,
+  expression: '',
 };
 
 export const compute = (a, op, b) => {
@@ -25,3 +27,20 @@ export const formatResult = (n) => {
   const rounded = parseFloat(n.toPrecision(12));
   return String(rounded);
 };
+
+export const opSymbol = (op) => ({
+  '+': '+', '-': '−', '*': '×', '/': '÷',
+}[op] || op);
+
+export const fresh = () => ({
+  display: '0',
+  accumulator: null,
+  pendingOp: null,
+  waitingForNew: false,
+  justComputed: false,
+  lastOperand: null,
+  lastOp: null,
+  lastOperandSource: null,
+  error: false,
+  expression: '',
+});

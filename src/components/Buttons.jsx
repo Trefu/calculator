@@ -1,54 +1,20 @@
-import { compute, formatResult } from "../calc";
+import { compute, formatResult, opSymbol, fresh } from "../calc";
 
-const finalizeResult = (s, result) => {
-  const formatted = formatResult(result);
-  if (formatted === 'Cannot divide by zero') {
-    return {
-      ...s,
-      display: formatted,
-      accumulator: null,
-      pendingOp: null,
-      waitingForNew: false,
-      justComputed: false,
-      lastOperand: null,
-      lastOp: null,
-      error: true,
-    };
-  }
-  return formatted;
-};
-
-const applyDigit = (s, value) => {
-  if (s.waitingForNew || s.justComputed) {
-    return { ...s, display: value, waitingForNew: false, justComputed: false };
-  }
-  if (s.display === '0') return { ...s, display: value };
-  if (s.display === '-0') return { ...s, display: '-' + value };
-  if (s.display.replace('-', '').replace('.', '').length >= 16) return s;
-  return { ...s, display: s.display + value };
-};
+const MAX_DIGITS = 16;
 
 export const Buttons = ({ input, setInput }) => {
   const handleClick = (e) => {
     const value = e.target.value;
     const s = { ...input };
 
+    const reset = () => setInput(fresh());
+
     if (s.error) {
-      if (value === 'restart') return setInput({
-        display: '0', accumulator: null, pendingOp: null,
-        waitingForNew: false, justComputed: false,
-        lastOperand: null, lastOp: null, error: false,
-      });
+      if (value === 'restart') return reset();
       return;
     }
 
-    if (value === 'restart') {
-      return setInput({
-        display: '0', accumulator: null, pendingOp: null,
-        waitingForNew: false, justComputed: false,
-        lastOperand: null, lastOp: null, error: false,
-      });
-    }
+    if (value === 'restart') return reset();
 
     if (value === 'backspace') {
       if (s.waitingForNew || s.justComputed) return;
@@ -68,12 +34,32 @@ export const Buttons = ({ input, setInput }) => {
     }
 
     if (!isNaN(value)) {
-      return setInput(applyDigit(s, value));
+      const wasComputed = s.justComputed;
+      if (s.waitingForNew) {
+        s.display = value;
+        s.waitingForNew = false;
+        return setInput(s);
+      }
+      if (wasComputed) {
+        s.display = value;
+        s.justComputed = false;
+        s.expression = '';
+        return setInput(s);
+      }
+      if (s.display === '0') return setInput({ ...s, display: value });
+      if (s.display === '-0') return setInput({ ...s, display: '-' + value });
+      const digits = s.display.replace('-', '').replace('.', '').length;
+      if (digits >= MAX_DIGITS) return;
+      return setInput({ ...s, display: s.display + value });
     }
 
     if (value === '.') {
-      if (s.waitingForNew || s.justComputed) {
-        return setInput({ ...s, display: '0.', waitingForNew: false, justComputed: false });
+      const wasComputed = s.justComputed;
+      if (s.waitingForNew) {
+        return setInput({ ...s, display: '0.', waitingForNew: false });
+      }
+      if (wasComputed) {
+        return setInput({ ...s, display: '0.', justComputed: false, expression: '' });
       }
       if (!s.display.includes('.')) {
         s.display = s.display + '.';
@@ -84,42 +70,55 @@ export const Buttons = ({ input, setInput }) => {
     if (value === '=') {
       if (s.pendingOp === null && s.justComputed && s.lastOp !== null) {
         const result = compute(parseFloat(s.display), s.lastOp, s.lastOperand);
-        s.display = formatResult(result);
-        s.justComputed = true;
-        if (s.display === 'Cannot divide by zero') s.error = true;
-        return setInput(s);
+        const formatted = formatResult(result);
+        if (formatted === 'Cannot divide by zero') {
+          return setInput({ ...fresh(), display: formatted, error: true });
+        }
+        return setInput({ ...s, display: formatted, justComputed: true, expression: '' });
       }
       if (s.pendingOp === null) return;
       const a = parseFloat(s.accumulator);
-      const b = s.waitingForNew ? a : parseFloat(s.display);
+      const b = s.waitingForNew
+        ? (s.lastOperandSource === 'display' ? s.lastOperand : a)
+        : parseFloat(s.display);
       const result = compute(a, s.pendingOp, b);
-      const finalized = finalizeResult(s, result);
-      if (finalized.error) return setInput(finalized);
+      const formatted = formatResult(result);
+      if (formatted === 'Cannot divide by zero') {
+        return setInput({ ...fresh(), display: formatted, error: true });
+      }
       return setInput({
         ...s,
-        display: finalized,
+        display: formatted,
         lastOperand: b,
         lastOp: s.pendingOp,
+        lastOperandSource: 'display',
         accumulator: null,
         pendingOp: null,
         waitingForNew: false,
         justComputed: true,
+        expression: '',
       });
     }
 
     if (['+', '-', '*', '/'].includes(value)) {
       if (s.pendingOp !== null && !s.waitingForNew) {
-        const result = compute(parseFloat(s.accumulator), s.pendingOp, parseFloat(s.display));
-        const finalized = finalizeResult(s, result);
-        if (finalized.error) return setInput(finalized);
-        s.display = finalized;
-        s.accumulator = finalized;
+        const enteredValue = parseFloat(s.display);
+        const result = compute(parseFloat(s.accumulator), s.pendingOp, enteredValue);
+        const formatted = formatResult(result);
+        if (formatted === 'Cannot divide by zero') {
+          return setInput({ ...fresh(), display: formatted, error: true });
+        }
+        s.lastOperand = enteredValue;
+        s.lastOperandSource = 'display';
+        s.display = formatted;
+        s.accumulator = formatted;
       } else {
         s.accumulator = s.display;
       }
       s.pendingOp = value;
       s.waitingForNew = true;
       s.justComputed = false;
+      s.expression = `${s.accumulator} ${opSymbol(value)}`;
       return setInput(s);
     }
   };

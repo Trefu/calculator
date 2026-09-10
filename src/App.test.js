@@ -1,7 +1,7 @@
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import App from './App';
-import { compute, formatResult, initialState } from './calc';
+import { compute, formatResult, initialState, opSymbol } from './calc';
 
 const FCC_IDS = [
   'display', 'clear', 'equals', 'decimal', 'zero',
@@ -36,8 +36,16 @@ test('initialState is the documented zero-state', () => {
   expect(initialState).toEqual({
     display: '0', accumulator: null, pendingOp: null,
     waitingForNew: false, justComputed: false,
-    lastOperand: null, lastOp: null, error: false,
+    lastOperand: null, lastOp: null, lastOperandSource: null,
+    error: false, expression: '',
   });
+});
+
+test('opSymbol maps JS operators to display glyphs', () => {
+  expect(opSymbol('+')).toBe('+');
+  expect(opSymbol('-')).toBe('−');
+  expect(opSymbol('*')).toBe('×');
+  expect(opSymbol('/')).toBe('÷');
 });
 
 // ---- DOM presence ----
@@ -124,6 +132,86 @@ test('pressing an operator twice replaces the previous operator', () => {
   render(<App />);
   click('one'); click('add'); click('subtract'); click('two'); click('equals');
   expect(display()).toBe('-1');
+});
+
+test('chaining three operators in a row picks the last one', () => {
+  render(<App />);
+  click('one'); click('add'); click('subtract'); click('multiply'); click('two'); click('equals');
+  expect(display()).toBe('2');
+});
+
+test('pressing an operator right after another operator without a number does NOT compute', () => {
+  render(<App />);
+  click('nine'); click('add'); click('multiply');
+  expect(display()).toBe('9');
+});
+
+// ---- expression line (visual feedback for pending op) ----
+
+const expression = () => document.querySelector('[data-testid="expression"]').textContent;
+
+test('expression is empty initially', () => {
+  render(<App />);
+  expect(expression()).toBe('');
+});
+
+test('expression shows the pending operator after pressing it', () => {
+  render(<App />);
+  click('five'); click('add');
+  expect(expression()).toBe('5 +');
+});
+
+test('expression persists while entering the second operand', () => {
+  render(<App />);
+  click('five'); click('add'); click('three');
+  expect(expression()).toBe('5 +');
+  expect(display()).toBe('3');
+});
+
+test('expression updates with the new operator after a chained operation', () => {
+  render(<App />);
+  click('two'); click('add'); click('three'); click('multiply');
+  expect(expression()).toBe('5 ×');
+  expect(display()).toBe('5');
+});
+
+test('expression clears after pressing equals', () => {
+  render(<App />);
+  click('five'); click('add'); click('three'); click('equals');
+  expect(expression()).toBe('');
+});
+
+test('expression uses display glyphs (not JS operators)', () => {
+  render(<App />);
+  click('nine'); click('subtract'); click('multiply'); click('divide');
+  expect(expression()).toBe('9 ÷');
+});
+
+test('AC clears the expression too', () => {
+  render(<App />);
+  click('seven'); click('add');
+  click('clear');
+  expect(expression()).toBe('');
+});
+
+// ---- = with pending operator (uses last entered operand, Win10 hallmark) ----
+
+test('5 + = uses the accumulator as both operands (10)', () => {
+  render(<App />);
+  click('five'); click('add'); click('equals');
+  expect(display()).toBe('10');
+});
+
+test('5 + 3 + = uses the last entered operand (3), giving 11', () => {
+  render(<App />);
+  click('five'); click('add'); click('three'); click('add'); click('equals');
+  expect(display()).toBe('11');
+});
+
+test('5 + 3 + + = also uses the last entered operand (3)', () => {
+  render(<App />);
+  click('five'); click('add'); click('three'); click('add'); click('add'); click('equals');
+  expect(display()).toBe('11');
 });
 
 // ---- decimals ----
